@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Tournament Bracket Customizer',
-  description: 'Personalize your tournament bracket with your logo, name, and colors',
+  title: 'Personnaliseur de Bracket de Tournoi',
+  description: 'Personnalisez votre bracket de tournoi avec votre logo, votre nom et vos couleurs',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
+    <html lang="fr" className="bg-background">
       <body className="font-sans antialiased bg-background text-foreground">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

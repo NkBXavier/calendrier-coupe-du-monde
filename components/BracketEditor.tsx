@@ -23,98 +23,9 @@ export default function BracketEditor({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const redrawCanvas = () => {
-      const bracketImg = new Image()
-      bracketImg.crossOrigin = 'anonymous'
-      bracketImg.src = '/bracket.png'
+    let cancelled = false
 
-      bracketImg.onload = () => {
-        // Set canvas size to match image
-        canvas.width = bracketImg.width
-        canvas.height = bracketImg.height
-
-        // 1. Fill background with chosen color (shows through transparent pixels of the PNG)
-        ctx.fillStyle = backgroundColor && backgroundColor.match(/^#[0-9A-F]{6}$/i)
-          ? backgroundColor
-          : '#310c15'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        // 2. Draw bracket PNG on top — transparent areas reveal the background color
-        ctx.drawImage(bracketImg, 0, 0)
-
-        redrawLogo()
-      }
-
-      bracketImg.onerror = () => {
-        console.error('Failed to load bracket image')
-      }
-    }
-
-    const redrawLogo = () => {
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2 + 200
-      const logoRadius = 300
-
-      // White circle background
-      ctx.fillStyle = 'white'
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
-      ctx.fill()
-
-      // Outer shadow ring for depth
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)'
-      ctx.lineWidth = 12
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, logoRadius + 18, 0, Math.PI * 2)
-      ctx.stroke()
-
-      // White circle border — thick and visible
-      ctx.strokeStyle = '#ffffff'
-      ctx.lineWidth = 30
-      ctx.beginPath()
-      ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
-      ctx.stroke()
-
-      // Draw logo if available
-      if (logoUrl && logoUrl.trim()) {
-        const logo = new Image()
-        logo.crossOrigin = 'anonymous'
-        logo.src = logoUrl
-
-        logo.onerror = () => {
-          drawTournamentName(ctx, canvas)
-        }
-
-        logo.onload = () => {
-          try {
-            const logoSize = 650
-            ctx.save()
-            ctx.beginPath()
-            ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
-            ctx.clip()
-            ctx.drawImage(
-              logo,
-              centerX - logoSize / 2,
-              centerY - logoSize / 2,
-              logoSize,
-              logoSize
-            )
-            ctx.restore()
-          } catch {
-            // Fallback if image draw fails
-          }
-
-          drawTournamentName(ctx, canvas)
-        }
-      } else {
-        drawTournamentName(ctx, canvas)
-      }
-    }
-
-    const drawTournamentName = (
-      ctx: CanvasRenderingContext2D,
-      canvas: HTMLCanvasElement
-    ) => {
+    const drawTournamentName = () => {
       ctx.fillStyle = 'black'
       ctx.font = 'bold 160px Arial'
       ctx.textAlign = 'left'
@@ -122,7 +33,84 @@ export default function BracketEditor({
       ctx.fillText(tournamentName.toUpperCase(), 2250, 200)
     }
 
-    redrawCanvas()
+    const redrawLogo = (w: number, h: number) => {
+      const centerX = w / 2
+      const centerY = h / 2 + 200
+      const logoRadius = 300
+
+      ctx.fillStyle = 'white'
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
+      ctx.fill()
+
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)'
+      ctx.lineWidth = 12
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, logoRadius + 18, 0, Math.PI * 2)
+      ctx.stroke()
+
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 30
+      ctx.beginPath()
+      ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
+      ctx.stroke()
+
+      if (logoUrl && logoUrl.trim()) {
+        const logo = new Image()
+        logo.src = logoUrl
+
+        logo.onerror = () => {
+          if (cancelled) return
+          drawTournamentName()
+        }
+
+        logo.onload = () => {
+          if (cancelled) return
+          try {
+            const logoSize = 650
+            ctx.save()
+            ctx.beginPath()
+            ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
+            ctx.clip()
+            ctx.drawImage(logo, centerX - logoSize / 2, centerY - logoSize / 2, logoSize, logoSize)
+            ctx.restore()
+          } catch {
+            // canvas draw failed, skip logo
+          }
+          drawTournamentName()
+        }
+      } else {
+        drawTournamentName()
+      }
+    }
+
+    const bracketImg = new Image()
+    bracketImg.src = '/bracket.png'
+
+    bracketImg.onerror = () => {
+      if (cancelled) return
+      console.error('Failed to load bracket image')
+    }
+
+    bracketImg.onload = () => {
+      if (cancelled) return
+      try {
+        canvas.width = bracketImg.width
+        canvas.height = bracketImg.height
+
+        ctx.fillStyle = /^#[0-9A-F]{6}$/i.test(backgroundColor) ? backgroundColor : '#310c15'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(bracketImg, 0, 0)
+
+        redrawLogo(canvas.width, canvas.height)
+      } catch (err) {
+        console.error('Canvas render error:', err)
+      }
+    }
+
+    return () => {
+      cancelled = true
+    }
   }, [backgroundColor, logoUrl, tournamentName])
 
   const handleDownloadPDF = async () => {
@@ -170,18 +158,18 @@ export default function BracketEditor({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-secondary/30 p-4">
+    <div className="flex flex-col items-center w-full bg-secondary/30 p-3 sm:p-4">
       <div className="max-w-6xl w-full">
-        <div className="mb-6 flex gap-3 justify-center">
-          <Button onClick={handleDownloadPDF} variant="default" size="lg">
-            Download PDF
+        <div className="mb-3 flex gap-2 justify-center">
+          <Button onClick={handleDownloadPDF} variant="default" size="sm" className="sm:text-sm">
+            Télécharger PDF
           </Button>
-          <Button onClick={handleDownloadImage} variant="outline" size="lg">
-            Download PNG
+          <Button onClick={handleDownloadImage} variant="outline" size="sm" className="sm:text-sm">
+            Télécharger PNG
           </Button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-auto flex justify-center items-center max-h-screen">
+        <div className="bg-white rounded-lg shadow-lg overflow-auto flex justify-center items-center">
           <canvas
             ref={canvasRef}
             className="max-w-full h-auto bracket-canvas"

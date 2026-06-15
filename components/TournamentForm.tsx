@@ -8,6 +8,8 @@ interface FormData {
   name: string
   bgColor: string
   logoUrl: string | null
+  email: string
+  phone: string
 }
 
 interface TournamentFormProps {
@@ -21,6 +23,8 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
     name: 'votre nom',
     bgColor: '#310c15',
     logoUrl: null,
+    email: '',
+    phone: '',
   }
   
   const [previewImage, setPreviewImage] = useState<string | null>(formData.logoUrl)
@@ -84,23 +88,23 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
   }
 
   return (
-    <div className="w-full max-w-md space-y-6">
-      <div className="pb-4 border-b border-border">
-        <h2 className="text-2xl font-bold text-foreground mb-1">Customize</h2>
-        <p className="text-sm text-muted-foreground">Personalize your tournament</p>
+    <div className="w-full max-w-md space-y-4">
+      <div className="pb-3 border-b border-border">
+        <h2 className="text-xl font-bold text-foreground mb-0.5">Personnaliser</h2>
+        <p className="text-sm text-muted-foreground">Personnalisez votre tournoi</p>
       </div>
 
       {/* Logo Upload Section */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <label className="block text-sm font-semibold text-foreground flex items-center gap-2">
           <Upload size={16} />
-          Logo or Photo
+          Logo ou Photo
         </label>
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+          className={`relative border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-all ${
             isDragging
               ? 'border-primary bg-primary/5'
               : 'border-border bg-secondary/30 hover:bg-secondary/50'
@@ -115,20 +119,20 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
             title="Upload logo or photo"
           />
           {previewImage ? (
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-2">
               <img
                 src={previewImage}
                 alt="Logo preview"
-                className="h-24 w-24 object-contain rounded"
+                className="h-16 w-16 object-contain rounded"
               />
-              <p className="text-sm text-muted-foreground">Click or drag to replace</p>
+              <p className="text-sm text-muted-foreground">Cliquez ou faites glisser pour remplacer</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-3 py-4">
-              <Upload className="h-8 w-8 text-muted-foreground" />
+            <div className="flex flex-col items-center gap-2 py-2">
+              <Upload className="h-6 w-6 text-muted-foreground" />
               <div>
-                <p className="font-medium text-foreground">Drag and drop your logo</p>
-                <p className="text-sm text-muted-foreground">or click to browse</p>
+                <p className="font-medium text-foreground text-sm">Glissez-déposez votre logo</p>
+                <p className="text-xs text-muted-foreground">ou cliquez pour parcourir</p>
               </div>
             </div>
           )}
@@ -136,7 +140,7 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
       </div>
 
       {/* Name Input */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         <label htmlFor="name" className="block text-sm font-semibold text-foreground">
           Nom de l'utilisateur
         </label>
@@ -151,15 +155,47 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
         />
       </div>
 
+      {/* Email Input */}
+      <div className="space-y-2">
+        <label htmlFor="email" className="block text-sm font-semibold text-foreground">
+          Adresse email
+        </label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          placeholder="exemple@email.com"
+          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+      </div>
+
+      {/* Phone Input */}
+      <div className="space-y-2">
+        <label htmlFor="phone" className="block text-sm font-semibold text-foreground">
+          Numéro de téléphone
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          name="phone"
+          value={formData.phone}
+          onChange={handleInputChange}
+          placeholder="+1 234 567 8900"
+          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        />
+      </div>
+
       {/* Color Picker */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <label className="block text-sm font-semibold text-foreground">
-          Color Scheme
+          Schéma de couleurs
         </label>
         <div className="space-y-2">
           <div className="flex gap-3 items-center">
             <label htmlFor="colorPicker" className="sr-only">
-              Pick a background color
+              Choisissez une couleur de fond
             </label>
             <input
               id="colorPicker"
@@ -171,7 +207,7 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
               title="Pick a color"
             />
             <label htmlFor="hexColor" className="sr-only">
-              Hex color code
+              Code couleur hexadécimal
             </label>
             <input
               id="hexColor"
@@ -185,23 +221,23 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
             />
           </div>
           <p className="text-xs text-muted-foreground pl-1">
-            Hex code or use the picker
+            Code hexadécimal ou utilisez le sélecteur
           </p>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 pt-4 border-t border-border">
+      <div className="flex gap-3 pt-3 border-t border-border">
         <Button
           onClick={() => {
-            const resetData = { name: 'Canada - Mexico - United States', bgColor: '#310c15', logoUrl: null }
+            const resetData = { name: 'Canada - Mexico - United States', bgColor: '#310c15', logoUrl: null, email: '', phone: '' }
             setPreviewImage(null)
             onUpdate(resetData)
           }}
           variant="outline"
           className="flex-1"
         >
-          Reset
+          Réinitialiser
         </Button>
       </div>
     </div>

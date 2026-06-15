@@ -8,6 +8,8 @@ interface FormData {
   name: string
   bgColor: string
   logoUrl: string | null
+  email: string
+  phone: string
 }
 
 export default function Page() {
@@ -15,27 +17,29 @@ export default function Page() {
     name: 'votre nom',
     bgColor: '#310c15',
     logoUrl: null,
+    email: '',
+    phone: '',
   })
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="bg-primary/5 border-b border-border px-6 py-4">
+      <div className="bg-primary/5 border-b border-border px-4 py-3 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold text-foreground">Tournament Bracket Customizer</h1>
-          <p className="text-sm text-muted-foreground mt-1">Create personalized tournament brackets with your branding</p>
+          <h1 className="text-2xl font-bold text-foreground">Personnaliseur de Bracket</h1>
+          <p className="text-sm text-muted-foreground mt-1">Créez votre bracket de tournoi personnalisé avec votre logo et vos couleurs</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 lg:overflow-hidden">
         {/* Left side - Form */}
-        <div className="bg-secondary/30 p-6 lg:p-12 overflow-auto flex items-center justify-center border-r border-border">
+        <div className="bg-secondary/30 p-4 sm:p-6 lg:p-8 overflow-auto flex items-start lg:items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
           <TournamentForm onUpdate={setFormData} defaultData={formData} />
         </div>
 
         {/* Right side - Preview */}
-        <div className="bg-background overflow-auto flex items-center justify-center">
+        <div className="bg-background overflow-auto flex items-start lg:items-center justify-center py-4">
           <BracketEditor
             backgroundColor={formData.bgColor}
             tournamentName={formData.name}
