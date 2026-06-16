@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxjeWKbD_nCaEN4L_leGOUMweW8l3jzbKIbTSUJivWqxK0BS6nBLtgstNhEqK9XE-FY/exec'
+const SHEET_URL = '/api/submit-sheet'
 
 interface BracketEditorProps {
   backgroundColor: string
@@ -21,6 +21,8 @@ export default function BracketEditor({
   phone,
 }: BracketEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const isFormValid = tournamentName.trim() !== '' && email.trim() !== '' && phone.trim() !== ''
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -121,12 +123,11 @@ export default function BracketEditor({
 
   const submitToSheet = async (type: 'PDF' | 'PNG') => {
     try {
-      const url = new URL(SHEET_URL)
-      url.searchParams.set('name', tournamentName)
-      url.searchParams.set('email', email)
-      url.searchParams.set('phone', phone)
-      url.searchParams.set('type', type)
-      await fetch(url.toString(), { method: 'GET', mode: 'no-cors' })
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: tournamentName, email, phone, type }),
+      })
     } catch (err) {
       console.error('Sheet submit error:', err)
     }
@@ -181,13 +182,20 @@ export default function BracketEditor({
   return (
     <div className="flex flex-col items-center w-full bg-secondary/30 p-3 sm:p-4">
       <div className="max-w-6xl w-full">
-        <div className="mb-3 flex gap-2 justify-center">
-          <Button onClick={handleDownloadPDF} variant="default" size="sm" className="sm:text-sm">
-            Télécharger PDF
-          </Button>
-          <Button onClick={handleDownloadImage} variant="outline" size="sm" className="sm:text-sm">
-            Télécharger PNG
-          </Button>
+        <div className="mb-3 flex flex-col items-center gap-2">
+          <div className="flex gap-2">
+            <Button onClick={handleDownloadPDF} variant="default" size="sm" className="sm:text-sm" disabled={!isFormValid}>
+              Télécharger PDF
+            </Button>
+            <Button onClick={handleDownloadImage} variant="outline" size="sm" className="sm:text-sm" disabled={!isFormValid}>
+              Télécharger PNG
+            </Button>
+          </div>
+          {!isFormValid && (
+            <p className="text-xs text-destructive">
+              Remplissez tous les champs (nom, email, téléphone) pour télécharger.
+            </p>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg overflow-auto flex justify-center items-center">
