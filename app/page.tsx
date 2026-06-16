@@ -44,6 +44,8 @@ export default function Page() {
             backgroundColor={formData.bgColor}
             tournamentName={formData.name}
             logoUrl={formData.logoUrl}
+            email={formData.email}
+            phone={formData.phone}
           />
         </div>
       </div>

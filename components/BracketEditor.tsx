@@ -3,16 +3,22 @@
 import { useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxjeWKbD_nCaEN4L_leGOUMweW8l3jzbKIbTSUJivWqxK0BS6nBLtgstNhEqK9XE-FY/exec'
+
 interface BracketEditorProps {
   backgroundColor: string
   tournamentName: string
   logoUrl: string | null
+  email: string
+  phone: string
 }
 
 export default function BracketEditor({
   backgroundColor,
   tournamentName,
   logoUrl,
+  email,
+  phone,
 }: BracketEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -113,6 +119,19 @@ export default function BracketEditor({
     }
   }, [backgroundColor, logoUrl, tournamentName])
 
+  const submitToSheet = async (type: 'PDF' | 'PNG') => {
+    try {
+      const url = new URL(SHEET_URL)
+      url.searchParams.set('name', tournamentName)
+      url.searchParams.set('email', email)
+      url.searchParams.set('phone', phone)
+      url.searchParams.set('type', type)
+      await fetch(url.toString(), { method: 'GET', mode: 'no-cors' })
+    } catch (err) {
+      console.error('Sheet submit error:', err)
+    }
+  }
+
   const handleDownloadPDF = async () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -141,13 +160,14 @@ export default function BracketEditor({
       const y = (pdfHeight - scaledHeight) / 2
 
       pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight)
-      pdf.save(`tournament-bracket-${Date.now()}.pdf`)
+      await pdf.save(`tournament-bracket-${Date.now()}.pdf`, { returnPromise: true })
+      await submitToSheet('PDF')
     } catch (error) {
       console.error('PDF download error:', error)
     }
   }
 
-  const handleDownloadImage = () => {
+  const handleDownloadImage = async () => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -155,6 +175,7 @@ export default function BracketEditor({
     link.href = canvas.toDataURL('image/png')
     link.download = `tournament-bracket-${Date.now()}.png`
     link.click()
+    await submitToSheet('PNG')
   }
 
   return (
