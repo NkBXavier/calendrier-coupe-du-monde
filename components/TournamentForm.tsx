@@ -91,7 +91,7 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
     <div className="w-full max-w-md space-y-4">
       <div className="pb-3 border-b border-border">
         <h2 className="text-xl font-bold text-foreground mb-0.5">Personnaliser</h2>
-        <p className="text-sm text-muted-foreground">Personnalisez votre tournoi</p>
+        <p className="text-sm text-muted-foreground">Personnalisez votre tableau</p>
       </div>
 
       {/* Logo Upload Section */}
