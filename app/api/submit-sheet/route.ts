@@ -7,11 +7,11 @@ import { NextRequest, NextResponse } from 'next/server'
   )
 
   export async function POST(req: NextRequest) {
-    const { name, email, phone, type } = await req.json()
+    const { name, email, phone, type, profil, organisationName } = await req.json()
 
     const { error } = await supabase
       .from('downloads')
-      .insert({ name, email, phone, type })
+      .insert({ name, email, phone, type, profil, organisation_name: organisationName })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

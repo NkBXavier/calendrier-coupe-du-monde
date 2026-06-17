@@ -10,6 +10,8 @@ interface FormData {
   logoUrl: string | null
   email: string
   phone: string
+  profil: '' | 'Étudiant' | 'Salarié' | 'Entreprise'
+  organisationName: string
 }
 
 interface TournamentFormProps {
@@ -25,6 +27,8 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
     logoUrl: null,
     email: '',
     phone: '',
+    profil: '' as const,
+    organisationName: '',
   }
   
   const [previewImage, setPreviewImage] = useState<string | null>(formData.logoUrl)
@@ -33,6 +37,12 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     const updated = { ...formData, [name]: value }
+    onUpdate(updated)
+  }
+
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target
+    const updated = { ...formData, [name]: value, organisationName: '' }
     onUpdate(updated)
   }
 
@@ -187,6 +197,43 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
         />
       </div>
 
+      {/* Profil */}
+      <div className="space-y-2">
+        <label htmlFor="profil" className="block text-sm font-semibold text-foreground">
+          Profil
+        </label>
+        <select
+          id="profil"
+          name="profil"
+          value={formData.profil}
+          onChange={handleSelectChange}
+          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+        >
+          <option value="">-- Sélectionner un profil --</option>
+          <option value="Étudiant">Étudiant</option>
+          <option value="Salarié">Salarié</option>
+          <option value="Entreprise">Entreprise</option>
+        </select>
+      </div>
+
+      {/* Organisation Name (conditional) */}
+      {formData.profil !== '' && (
+        <div className="space-y-2">
+          <label htmlFor="organisationName" className="block text-sm font-semibold text-foreground">
+            {formData.profil === 'Étudiant' ? "Nom de l'école" : "Nom de l'entreprise"}
+          </label>
+          <input
+            id="organisationName"
+            type="text"
+            name="organisationName"
+            value={formData.organisationName}
+            onChange={handleInputChange}
+            placeholder={formData.profil === 'Étudiant' ? "Nom de votre école" : "Nom de votre entreprise"}
+            className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+      )}
+
       {/* Color Picker */}
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-foreground">
@@ -230,7 +277,7 @@ export default function TournamentForm({ onUpdate, defaultData }: TournamentForm
       <div className="flex gap-3 pt-3 border-t border-border">
         <Button
           onClick={() => {
-            const resetData = { name: 'Canada - Mexico - United States', bgColor: '#310c15', logoUrl: null, email: '', phone: '' }
+            const resetData = { name: 'Canada - Mexico - United States', bgColor: '#310c15', logoUrl: null, email: '', phone: '', profil: '' as const, organisationName: '' }
             setPreviewImage(null)
             onUpdate(resetData)
           }}

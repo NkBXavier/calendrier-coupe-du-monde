@@ -11,6 +11,8 @@ interface BracketEditorProps {
   logoUrl: string | null
   email: string
   phone: string
+  profil?: string
+  organisationName?: string
 }
 
 export default function BracketEditor({
@@ -19,10 +21,17 @@ export default function BracketEditor({
   logoUrl,
   email,
   phone,
+  profil,
+  organisationName,
 }: BracketEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const isFormValid = tournamentName.trim() !== '' && email.trim() !== '' && phone.trim() !== ''
+  const isFormValid =
+    tournamentName.trim() !== '' &&
+    email.trim() !== '' &&
+    phone.trim() !== '' &&
+    !!profil &&
+    organisationName?.trim() !== ''
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -43,8 +52,8 @@ export default function BracketEditor({
 
     const redrawLogo = (w: number, h: number) => {
       const centerX = w / 2
-      const centerY = h / 2 + 200
-      const logoRadius = 300
+      const centerY = h / 2 + 300
+      const logoRadius = 350
 
       ctx.fillStyle = 'white'
       ctx.beginPath()
@@ -75,7 +84,7 @@ export default function BracketEditor({
         logo.onload = () => {
           if (cancelled) return
           try {
-            const logoSize = 650
+            const logoSize = 700
             ctx.save()
             ctx.beginPath()
             ctx.arc(centerX, centerY, logoRadius, 0, Math.PI * 2)
@@ -126,7 +135,7 @@ export default function BracketEditor({
       await fetch(SHEET_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: tournamentName, email, phone, type }),
+        body: JSON.stringify({ name: tournamentName, email, phone, type, profil, organisationName }),
       })
     } catch (err) {
       console.error('Sheet submit error:', err)
@@ -193,7 +202,7 @@ export default function BracketEditor({
           </div>
           {!isFormValid && (
             <p className="text-xs text-destructive">
-              Remplissez tous les champs (nom, email, téléphone) pour télécharger.
+              Remplissez tous les champs (nom, email, téléphone, profil, organisation) pour télécharger.
             </p>
           )}
         </div>

@@ -10,6 +10,8 @@ interface FormData {
   logoUrl: string | null
   email: string
   phone: string
+  profil: '' | 'Étudiant' | 'Salarié' | 'Entreprise'
+  organisationName: string
 }
 
 export default function Page() {
@@ -19,6 +21,8 @@ export default function Page() {
     logoUrl: null,
     email: '',
     phone: '',
+    profil: '',
+    organisationName: '',
   })
 
   return (
@@ -46,6 +50,8 @@ export default function Page() {
             logoUrl={formData.logoUrl}
             email={formData.email}
             phone={formData.phone}
+            profil={formData.profil}
+            organisationName={formData.organisationName}
           />
         </div>
       </div>
